@@ -7,9 +7,10 @@
 #include <vector>
 #include <array>
 #include <string>
+#include <algorithm>
 #include <unordered_set>
 #include <unordered_map>
-#include "mapping.h"
+#include "utils/mapping.h"
 
 //Interface
 //Create GenieDataManager object, constructor will initialize datastructures and load MSR source files (may be changed in the future to accomodate multiple sources and user selection)
@@ -47,13 +48,13 @@ class MSR {
 
 		void printBitfields() {
 			for(auto &bitfield : bit_fields) {
-				std::cout << "\t value: " << bitfield.values << "\t function: " << bitfield.function << "\t description: " << bitfield.description << "\n";
+				std::cout << "\tvalue: " << bitfield.values << "\tfunction: " << bitfield.function << "\t\tdescription: " << bitfield.description << "\n";
 			}
 		}
 
-		void printDFDM(std::string table){
+		void printDFDM(std::string hex_address, std::string table){
 
-			std::cout << "Table name: " << table << " MSR name: " << name << " Domain: " << domain << " description: " << description << "\nAssociated DFDMs: "; 
+			std::cout << "Table name: " << table << "\tHex address: " << hex_address << "\tMSR name: " << name << "\tDomain: " << domain << "\tdescription: " << description << "\nAssociated DFDMs: "; 
 			for(auto &df_dm : associated_df_dm){
 				std::cout << df_dm << " ";
 			}
@@ -71,8 +72,8 @@ class MSR {
 			bit_fields.emplace_back(MSRBitFields(input));
 		};
 
-		void print(std::string table){
-			printDFDM(table);
+		void print(std::string hex_address, std::string table = "N/A"){
+			printDFDM(hex_address, table);
 		}
 
 		void fill(std::array<std::string, 4> &data) {
@@ -111,11 +112,14 @@ class GenieDataStore {
 		//manufacturer --> df_dm --> vector of pointers to table 
 		std::unordered_map<std::string, std::unordered_map<std::string, std::vector<msr_table_hash*> > > df_dm_info;
 
+		//table memory address to table name lookup
+		std::unordered_map<msr_table_hash*, std::string> table_lookup;
+
 		//debug	
 		void printTableNames(){
 			for(const auto & manu : MSR_info) {
 				for(const auto & table : manu.second) {
-					std::cout << table.first << " size: " << std::to_string(table.second.size()) << " table address: " << &table.second << "\n";
+					std::cout << "Manufacturer: " << manu.first << "\tTable name: " << table.first << "\tNumber of MSRs: " << std::to_string(table.second.size()) << "\tTable address:\t" << &table.second << "\n";
 				}
 			}
 		}
@@ -123,7 +127,7 @@ class GenieDataStore {
 		//debug
 		void printTablePointerAddresses() {
 			for(const auto & manu : df_dm_info) {
-				std::cout << manu.first << " ";
+				std::cout << manu.first << "\n";
 				for(const auto & df_dm : manu.second){
 					std::cout << df_dm.first << " ";
 					for(const auto & table_address : df_dm.second) {
@@ -136,12 +140,11 @@ class GenieDataStore {
 		//debug
 		void printMSRandBitfields() {
 			for(const auto & manu : MSR_info) {
-				std::cout << manu.first << " ";
+				std::cout << "Manufacturer: " << manu.first << "\t";
 				for(const auto & table : manu.second){
-					std::cout << table.first << " ";
-					for(const auto & msr : table.second) {
-						std::cout << msr.first << " ";
-						msr.second->print(table.first);
+					std::cout << "Table: " << table.first << "\n";
+					for(const auto & msr : table.second) {	
+						msr.second->print(msr.first, table.first);
 					}	
 				}
 			}
@@ -185,6 +188,7 @@ class GenieDataStore {
 			for(auto &df_dm : df_dm_vector) {
 				df_dm_info[manufacturer][df_dm].push_back(&MSR_info[manufacturer][tablename]);
 			}
+			table_lookup[&MSR_info[manufacturer][tablename]] = tablename;
 		}
 
 		//debug	
@@ -208,8 +212,8 @@ class GenieDataStore {
 			//int count = 1;
 			for(auto & table_address: df_dm_info[manufacturer][df_dm]) { //print all MSR hex addresses associated with df_dm
 				for(auto & p : *table_address){
-					std::cout << "Hex address: "  << p.first;
-					if(all) p.second->print("TEST");
+					//std::cout << "Hex address: "  << p.first;
+					if(all) p.second->print(p.first, table_lookup[table_address]);
 					else std::cout << "\n";
 					//std::cout << "MSR count: " << std::to_string(count++);;
 				}	
@@ -236,14 +240,12 @@ class GenieDataStore {
 	
 			//use set to remove duplicates
 			std::unordered_set<std::string> ret;
-			//auto vec = MSR_info[manufacturer]["2-20"][MSR_hex]->getDFDMsForMSR();
-			//std::cout << "Table size for intel: " << std::to_string(MSR_info[manufacturer].size()) << std::endl;
+
 			std::unordered_map<std::string, msr_table_hash> &tables = MSR_info[manufacturer];
 			
 			for(const auto &table : tables) {
-				//std::cout << table.first << "\n";
+				
 				if(table.second.find(MSR_hex) != table.second.end()){
-				//std::cout << "TEST\n";
 					for(const auto &dfdm : table.second.at(MSR_hex)->getDFDMsForMSR()) {
 						if(ret.find(dfdm) == ret.end()) {
 							ret.insert(dfdm);
@@ -260,8 +262,12 @@ class GenieDataStore {
 		std::vector<std::pair<uint64_t, std::array<std::string, 3> > > getMask(std::string df_dm, std::string msr_hex, std::string manufacturer = "INTEL"){
 		//returns the mask and array(MSR hex address, MSR name, domain, description, range of bitfield, function, description of bitfield) *May contain duplicates due to MSR existing in multiple referenced tables*
 			std::vector<std::pair<uint64_t, std::array<std::string, 3> > > ret;
-	
-			for(auto & table_address : df_dm_info[manufacturer][df_dm]) {
+
+		
+			//reverse the table addresses to lookup the highest numbered table first, if we find the MSR in the highest table referenced then we use it and break. (table addresses are originally from 2-20 to 2-52)
+			auto address_vec = df_dm_info[manufacturer][df_dm];	
+			std::reverse(address_vec.begin(), address_vec.end());
+			for(auto & table_address : address_vec) {
 				auto table = *table_address;
 				if(table_address->find(msr_hex) != table_address->end()) {	
 					auto msr = table[msr_hex];
@@ -273,6 +279,7 @@ class GenieDataStore {
 							ret.emplace_back(std::make_pair(range_mask, entry));
 						}
 					}
+					break;
 				}
 			}
 			return ret;
@@ -350,6 +357,7 @@ class FileLoader {
 																									 
 				 }
 				 data.insertTablePointer(tablename, "INTEL", tables_to_dfdm[tablename]);
+
 	    	}	
 	
 		}   
