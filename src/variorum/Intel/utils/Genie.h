@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <unordered_set>
 #include <unordered_map>
-#include "utils/mapping.h"
+#include "mapping.h"
 
 //Interface
 //Create GenieDataManager object, constructor will initialize datastructures and load MSR source files (may be changed in the future to accomodate multiple sources and user selection)
