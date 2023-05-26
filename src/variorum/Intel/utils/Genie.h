@@ -11,7 +11,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <iomanip>
-#include "mapping.h"
+#include "utils/mapping.h"
 
 //Interface
 //Create GenieDataManager object, constructor will initialize datastructures and load MSR source files (may be changed in the future to accomodate multiple sources and user selection)
@@ -78,7 +78,7 @@ class MSR {
 			printDFDM(hex_address, table);
 		}
 
-		void fill(std::array<std::string, 4> &data) {
+		void fill(std::array<std::string, 5> &data) {
 			data[1] = name;
 			data[2] = domain;
 			data[3] = description;
@@ -219,20 +219,21 @@ class GenieDataStore {
 			}
 		}
 
-		std::vector<std::array<std::string,4> > getMSRsForDFDM(std::string dfdm, std::string manufacturer){
+		std::vector<std::array<std::string,5> > getMSRsForDFDM(std::string dfdm, std::string manufacturer){
 			//get list of MSRs from highest numbered table to lowest number
 			//skip MSRs which have been seen in a higher numbered table by 
 			//keeping track of MSR hex addresses in hash set
 			std::unordered_set<std::string> seen; 
-			std::vector<std::array<std::string, 4> > ret;
+			std::vector<std::array<std::string, 5> > ret;
 			auto table_addresses = df_dm_info[manufacturer][dfdm];
 			std::reverse(table_addresses.begin(), table_addresses.end());
 			for(auto & table_address: table_addresses) {
 				for(auto &p : *table_address) {
 					if(seen.find(p.first) != seen.end()) continue;
 					seen.insert(p.first);
-					std::array<std::string, 4> temp;
+					std::array<std::string, 5> temp;
 					temp[0] = p.first;
+					temp[4] = table_lookup[table_address];
 					p.second->fill(temp);
 					ret.push_back(temp);
 				}
@@ -420,8 +421,8 @@ class GenieDataManager {
 			return data.getDFDMsForMSR(MSR_hex, manufacturer);
 		}
 
-		//return vector of array of size 4, hex address, name, domain, description
-		std::vector<std::array<std::string, 4> > getMSRsForDFDM(std::string dfdm, std::string manufacturer = "INTEL") {
+		//return vector of array of size 4, hex address, name, domain, description, table name
+		std::vector<std::array<std::string, 5> > getMSRsForDFDM(std::string dfdm, std::string manufacturer = "INTEL") {
 			return data.getMSRsForDFDM(dfdm, manufacturer);
 		}
 
