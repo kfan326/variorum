@@ -10,7 +10,8 @@
 #include <algorithm>
 #include <unordered_set>
 #include <unordered_map>
-#include "mapping.h"
+#include <iomanip>
+#include "utils/mapping.h"
 
 //Interface
 //Create GenieDataManager object, constructor will initialize datastructures and load MSR source files (may be changed in the future to accomodate multiple sources and user selection)
@@ -48,18 +49,19 @@ class MSR {
 
 		void printBitfields() {
 			for(auto &bitfield : bit_fields) {
-				std::cout << "\tvalue: " << bitfield.values << "\tfunction: " << bitfield.function << "\t\tdescription: " << bitfield.description << "\n";
+				std::cout << "\tBit range: " << std::setw(6) << bitfield.values << "\tFunction: " << std::setw(10) << bitfield.function << "\tDescription: " << bitfield.description << "\n";
 			}
 		}
 
 		void printDFDM(std::string hex_address, std::string table){
 
-			std::cout << "Table name: " << table << "\tHex address: " << hex_address << "\tMSR name: " << name << "\tDomain: " << domain << "\tdescription: " << description << "\nAssociated DFDMs: "; 
+			std::cout << "Table name: " << table << "\tHex address: " << std::setw(12) << hex_address << "\tMSR name: " << std::setw(30) << name << "\tDomain: " << std::setw(10) << domain << "\tDescription: " << description << "\nAssociated DFDMs: "; 
 			for(auto &df_dm : associated_df_dm){
 				std::cout << df_dm << " ";
 			}
 			std::cout << "\n";
 			printBitfields();
+			std::cout << "\n";
 		}
 
 	public:
@@ -199,7 +201,7 @@ class GenieDataStore {
 		}
 
 		//print MSRs associated with a df_dm
-		void printMSRs(std::string df_dm, bool all, std::string manufacturer) {
+		void printMSRs(std::string df_dm, std::string manufacturer) {
 			if(df_dm_info[manufacturer].find(df_dm) == df_dm_info[manufacturer].end()) {
 				std::cout << "Invalid df_dm or no data available\n";
 				return;
@@ -212,18 +214,23 @@ class GenieDataStore {
 			//int count = 1;
 			for(auto & table_address: df_dm_info[manufacturer][df_dm]) { //print all MSR hex addresses associated with df_dm
 				for(auto & p : *table_address){
-					//std::cout << "Hex address: "  << p.first;
-					if(all) p.second->print(p.first, table_lookup[table_address]);
-					else std::cout << "\n";
-					//std::cout << "MSR count: " << std::to_string(count++);;
+					p.second->print(p.first, table_lookup[table_address]);					
 				}	
 			}
 		}
 
 		std::vector<std::array<std::string,4> > getMSRsForDFDM(std::string dfdm, std::string manufacturer){
+			//get list of MSRs from highest numbered table to lowest number
+			//skip MSRs which have been seen in a higher numbered table by 
+			//keeping track of MSR hex addresses in hash set
+			std::unordered_set<std::string> seen; 
 			std::vector<std::array<std::string, 4> > ret;
-			for(auto & table_address: df_dm_info[manufacturer][dfdm]) {
+			auto table_addresses = df_dm_info[manufacturer][dfdm];
+			std::reverse(table_addresses.begin(), table_addresses.end());
+			for(auto & table_address: table_addresses) {
 				for(auto &p : *table_address) {
+					if(seen.find(p.first) != seen.end()) continue;
+					seen.insert(p.first);
 					std::array<std::string, 4> temp;
 					temp[0] = p.first;
 					p.second->fill(temp);
@@ -258,26 +265,50 @@ class GenieDataStore {
 
 		}
 
-		//get mask for ranges given df_dm and MSR hex
-		std::vector<std::pair<uint64_t, std::array<std::string, 3> > > getMask(std::string df_dm, std::string msr_hex, std::string manufacturer = "INTEL"){
-		//returns the mask and array(MSR hex address, MSR name, domain, description, range of bitfield, function, description of bitfield) *May contain duplicates due to MSR existing in multiple referenced tables*
-			std::vector<std::pair<uint64_t, std::array<std::string, 3> > > ret;
-
-		
+		//get mask given df_dm and MSR hex
+		std::array<std::string, 3> getMask(std::string df_dm, std::string msr_hex, std::string manufacturer = "INTEL"){
+		//returns the mask in array (hex address of MSR, hex value of mask, table msr belongs to)
+		std::array<std::string, 3> ret;
 			//reverse the table addresses to lookup the highest numbered table first, if we find the MSR in the highest table referenced then we use it and break. (table addresses are originally from 2-20 to 2-52)
 			auto address_vec = df_dm_info[manufacturer][df_dm];	
 			std::reverse(address_vec.begin(), address_vec.end());
 			for(auto & table_address : address_vec) {
 				auto table = *table_address;
+				auto tablename = table_lookup[table_address];
 				if(table_address->find(msr_hex) != table_address->end()) {	
 					auto msr = table[msr_hex];
 					auto bitfield_vector = msr->getBitfields(); // return a vector of array of strings of size 3 (range, function, description);
+
+					uint64_t sum = 0;
+
+					//format hex address
+					std::string removeH = msr_hex;
+					removeH.pop_back();
+					std::stringstream hex_to_decimal;
+					std::stringstream decimal_to_hex;
+					int msr_address_decimal;
+					hex_to_decimal << std::hex << removeH;
+					hex_to_decimal >> msr_address_decimal;	
+					decimal_to_hex << "0x" << std::uppercase << std::setfill('0') << std::setw(16) << std::hex << msr_address_decimal;
+
+					ret[0] = decimal_to_hex.str();
+					ret[2] = tablename;
+					
 					for(auto & entry : bitfield_vector) {
-						//we only want to extract entry with ranges, not single bits
+						//skip entry if description is reserved 
+						if(entry[2] == "Reserved" or entry[2] == "Reserved.") continue;
+						
 						if(entry[0].size() > 2) { 
 							uint64_t range_mask = utils::MASK(entry[0]);
-							ret.emplace_back(std::make_pair(range_mask, entry));
+							sum += range_mask;
+						} else {
+							sum += 1 << stoi(entry[0]); 
 						}
+					}
+					if(sum > 0) {
+						std::ostringstream converter;
+						converter << "0x" << std::uppercase << std::setfill('0') << std::setw(16) << std::hex << sum;
+						ret[1] = converter.str();
 					}
 					break;
 				}
@@ -380,8 +411,8 @@ class GenieDataManager {
 		}	
 		
 		//output msr data for a given df_dm in the terminal (includes bitfield info, function below does not contain bitfield info)
-		void printMSRs(std::string df_dm, bool all = true, std::string manufacturer = "INTEL"){
-			data.printMSRs(df_dm, all, manufacturer);
+		void printMSRs(std::string df_dm, std::string manufacturer = "INTEL"){
+			data.printMSRs(df_dm, manufacturer);
 		}
 
 		//returns vector of df_dm
@@ -394,9 +425,11 @@ class GenieDataManager {
 			return data.getMSRsForDFDM(dfdm, manufacturer);
 		}
 
-		//returns vector of pairs, first of the pair is the mask and second of the pair is a string array size 3 for the bitfield range, function and description
-		std::vector<std::pair<uint64_t, std::array<std::string, 3> > > getMask(std::string df_dm, std::string msr_hex, std::string manufacturer = "INTEL") {
+		//return array of strings (MSR hex address, Mask hex value, table name)	
+		std::array<std::string, 3> getMask(std::string df_dm, std::string msr_hex, std::string manufacturer = "INTEL") {
 			return data.getMask(df_dm, msr_hex, manufacturer);
 		}
+
+
 };
 

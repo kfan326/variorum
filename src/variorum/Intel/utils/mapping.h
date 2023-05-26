@@ -100,5 +100,27 @@ namespace utils {
 			return getMapping(tables);
 		}
 
+
+		//mask returns 0 for non numerical range
+		uint64_t MASK(std::string range_string) {
+			std::vector<int> range;
+			std::istringstream ss(range_string);
+			std::string token;
+			while(std::getline(ss, token, ':')){
+				for(auto &character : token) {
+					if(!isdigit(character)) {
+						return 0;
+					}
+				}
+				range.push_back(std::stoi(token));
+			}
+			uint64_t larger = range[0]>range[1]?range[0]:range[1];
+			uint64_t smaller = range[0]<range[1]?range[0]:range[1];
+			if(range[0] == 63 and range[1] == 0) return 0xFFFFFFFFFFFFFFFF;
+			return( ( ( (uint64_t)1 << (larger - smaller + 1) ) - 1) << range[1] ); 
+		}
+
+
+
 }
 
