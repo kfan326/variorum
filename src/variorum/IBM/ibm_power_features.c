@@ -1,4 +1,4 @@
-// Copyright 2019-2022 Lawrence Livermore National Security, LLC and other
+// Copyright 2019-2023 Lawrence Livermore National Security, LLC and other
 // Variorum Project Developers. See the top-level LICENSE file for details.
 //
 // SPDX-License-Identifier: MIT
@@ -8,7 +8,7 @@
 #include <string.h>
 #include <sys/time.h>
 
-#include <ibm_sensors.h>
+#include <ibm_power_features.h>
 
 unsigned long read_counter(const struct occ_sensor_data_header *hb,
                            uint32_t offset)

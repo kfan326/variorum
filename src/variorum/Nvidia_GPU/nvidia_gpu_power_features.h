@@ -1,4 +1,4 @@
-// Copyright 2019-2022 Lawrence Livermore National Security, LLC and other
+// Copyright 2019-2023 Lawrence Livermore National Security, LLC and other
 // Variorum Project Developers. See the top-level LICENSE file for details.
 //
 // SPDX-License-Identifier: MIT
@@ -20,15 +20,15 @@ void initNVML(void);
 
 void shutdownNVML(void);
 
-void get_power_data(int chipid, int verbose, FILE *output);
+void nvidia_gpu_get_power_data(int chipid, int verbose, FILE *output);
 
-void get_thermal_data(int chipid, int verbose, FILE *output);
+void nvidia_gpu_get_thermal_data(int chipid, int verbose, FILE *output);
 
-void get_clocks_data(int chipid, int verbose, FILE *output);
+void nvidia_gpu_get_clocks_data(int chipid, int verbose, FILE *output);
 
-void get_power_limits(int chipid, int verbose, FILE *output);
+void nvidia_gpu_get_power_limits_data(int chipid, int verbose, FILE *output);
 
-void get_gpu_utilization(int chipid, int verbose, FILE *output);
+void nvidia_gpu_get_gpu_utilization_data(int chipid, int verbose, FILE *output);
 
 void cap_each_gpu_power_limit(int chipid, unsigned int powerlimit);
 

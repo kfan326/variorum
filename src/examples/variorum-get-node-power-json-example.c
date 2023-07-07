@@ -1,4 +1,4 @@
-// Copyright 2019-2022 Lawrence Livermore National Security, LLC and other
+// Copyright 2019-2023 Lawrence Livermore National Security, LLC and other
 // Variorum Project Developers. See the top-level LICENSE file for details.
 //
 // SPDX-License-Identifier: MIT
@@ -29,7 +29,6 @@ int main(int argc, char **argv)
 {
     int ret;
     char *s = NULL;
-    int num_sockets = 0;
 #ifdef SECOND_RUN
     int i;
     int size = 1E4;
@@ -52,15 +51,6 @@ int main(int argc, char **argv)
                 fprintf(stderr, usage, argv[0]);
                 return -1;
         }
-    }
-
-    /* Determine number of sockets */
-    num_sockets = variorum_get_num_sockets();
-
-    if (num_sockets <= 0)
-    {
-        printf("HWLOC returned an invalid number of sockets. Exiting.\n");
-        exit(-1);
     }
 
     ret = variorum_get_node_power_json(&s);

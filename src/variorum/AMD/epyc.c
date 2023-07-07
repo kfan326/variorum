@@ -1,4 +1,4 @@
-// Copyright 2019-2022 Lawrence Livermore National Security, LLC and other
+// Copyright 2019-2023 Lawrence Livermore National Security, LLC and other
 // Variorum Project Developers. See the top-level LICENSE file for details.
 //
 // SPDX-License-Identifier: MIT
@@ -15,9 +15,9 @@
 #include <e_smi/e_smi.h>
 
 #include "msr_core.h"
-#include "energy_feature.h"
+#include "amd_power_features.h"
 
-int epyc_get_power(int long_ver)
+int amd_cpu_epyc_get_power(int long_ver)
 {
     char *val = getenv("VARIORUM_LOG");
     if (val != NULL && atoi(val) == 1)
@@ -81,7 +81,7 @@ int epyc_get_power(int long_ver)
     return 0;
 }
 
-int epyc_get_power_limits(int long_ver)
+int amd_cpu_epyc_get_power_limits(int long_ver)
 {
     char *val = getenv("VARIORUM_LOG");
     if (val != NULL && atoi(val) == 1)
@@ -165,7 +165,7 @@ int epyc_get_power_limits(int long_ver)
     return 0;
 }
 
-int epyc_set_and_verify_best_effort_node_power_limit(int pcap_new)
+int amd_cpu_epyc_set_and_verify_best_effort_node_power_limit(int pcap_new)
 {
     char *val = getenv("VARIORUM_LOG");
     if (val != NULL && atoi(val) == 1)
@@ -240,7 +240,7 @@ int epyc_set_and_verify_best_effort_node_power_limit(int pcap_new)
     return 0;
 }
 
-int epyc_set_socket_power_limit(int pcap_new)
+int amd_cpu_epyc_set_socket_power_limit(int pcap_new)
 {
     char *val = getenv("VARIORUM_LOG");
     if (val != NULL && atoi(val) == 1)
@@ -298,7 +298,7 @@ static struct EPYC_19h_offsets msrs =
     .msr_pkg_energy_stat         = 0xC001029B
 };
 
-int epyc_print_energy()
+int amd_cpu_epyc_print_energy()
 {
     char *val = getenv("VARIORUM_LOG");
     if (val != NULL && atoi(val) == 1)
@@ -357,7 +357,7 @@ energy_batch:
     return ret;
 }
 
-int epyc_print_boostlimit()
+int amd_cpu_epyc_print_boostlimit()
 {
     char *val = getenv("VARIORUM_LOG");
     if (val != NULL && atoi(val) == 1)
@@ -387,7 +387,7 @@ int epyc_print_boostlimit()
     return 0;
 }
 
-int epyc_set_each_core_boostlimit(int boostlimit)
+int amd_cpu_epyc_set_each_core_boostlimit(int boostlimit)
 {
     char *val = getenv("VARIORUM_LOG");
     if (val != NULL && atoi(val) == 1)
@@ -415,8 +415,8 @@ int epyc_set_each_core_boostlimit(int boostlimit)
     }
 
 #ifdef VARIORUM_DEBUG
-    fprintf(stdout, "Values are input:%2u MHz, test=%2u MHz\n",
-            boostlimit, core_boost_lim);
+    fprintf(stdout, "Values are input:%2u MHz\n",
+            boostlimit);
 #endif
 
     return 0;
@@ -424,7 +424,7 @@ int epyc_set_each_core_boostlimit(int boostlimit)
 
 
 /*
-int epyc_set_and_verify_core_boostlimit(int core, unsigned int boostlimit)
+int amd_cpu_epyc_set_and_verify_core_boostlimit(int core, unsigned int boostlimit)
 {
     char *val = getenv("VARIORUM_LOG");
     if (val != NULL && atoi(val) == 1)
@@ -483,7 +483,7 @@ int epyc_set_and_verify_core_boostlimit(int core, unsigned int boostlimit)
 */
 
 
-int epyc_set_socket_boostlimit(int socket, int boostlimit)
+int amd_cpu_epyc_set_socket_boostlimit(int socket, int boostlimit)
 {
     char *val = getenv("VARIORUM_LOG");
     if (val != NULL && atoi(val) == 1)
@@ -514,7 +514,7 @@ int epyc_set_socket_boostlimit(int socket, int boostlimit)
  * the variorum development team.
  * We expect to test and update these two functions when access is made available.
  * */
-int epyc_get_node_power_json(char **get_power_obj_str)
+int amd_cpu_epyc_get_node_power_json(char **get_power_obj_str)
 {
     char *val = getenv("VARIORUM_LOG");
     if (val != NULL && atoi(val) == 1)
@@ -584,7 +584,7 @@ int epyc_get_node_power_json(char **get_power_obj_str)
     return 0;
 }
 
-int epyc_get_node_power_domain_info_json(char **get_domain_obj_str)
+int amd_cpu_epyc_get_node_power_domain_info_json(char **get_domain_obj_str)
 {
     char *val = getenv("VARIORUM_LOG");
     if (val != NULL && atoi(val) == 1)

@@ -1,4 +1,4 @@
-// Copyright 2019-2022 Lawrence Livermore National Security, LLC and other
+// Copyright 2019-2023 Lawrence Livermore National Security, LLC and other
 // Variorum Project Developers. See the top-level LICENSE file for details.
 //
 // SPDX-License-Identifier: MIT
@@ -13,7 +13,7 @@
 #include <variorum_error.h>
 
 #include "msr_core.h"
-#include "energy_feature.h"
+#include "amd_power_features.h"
 
 static void create_rapl_data_batch(struct rapl_data *rapl,
                                    off_t msr_core_energy_status)

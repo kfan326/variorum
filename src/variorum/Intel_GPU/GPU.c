@@ -1,4 +1,4 @@
-// Copyright 2019-2022 Lawrence Livermore National Security, LLC and other
+// Copyright 2019-2023 Lawrence Livermore National Security, LLC and other
 // Variorum Project Developers. See the top-level LICENSE file for details.
 //
 // SPDX-License-Identifier: MIT
@@ -9,7 +9,7 @@
 #include <GPU.h>
 #include <config_architecture.h>
 #include <variorum_error.h>
-#include <power_features.h>
+#include <intel_gpu_power_features.h>
 
 int intel_gpu_get_power(int long_ver)
 {
@@ -57,7 +57,7 @@ int intel_gpu_get_clocks(int long_ver)
     return 0;
 }
 
-int intel_cap_each_gpu_power_limit(unsigned int powerlimit)
+int intel_gpu_cap_each_gpu_power_limit(unsigned int powerlimit)
 {
     char *val = getenv("VARIORUM_LOG");
     if (val != NULL && atoi(val) == 1)
