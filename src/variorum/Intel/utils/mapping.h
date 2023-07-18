@@ -95,7 +95,7 @@ namespace utils {
 		mappingContainer dfdm_to_table() {
 			return getMapping(df_dm);
 		}
-		
+
 		mappingContainer tables_to_dfdm() {
 			return getMapping(tables);
 		}
@@ -117,7 +117,7 @@ namespace utils {
 			uint64_t larger = range[0]>range[1]?range[0]:range[1];
 			uint64_t smaller = range[0]<range[1]?range[0]:range[1];
 			if(range[0] == 63 and range[1] == 0) return 0xFFFFFFFFFFFFFFFF;
-			return( ( ( (uint64_t)1 << (larger - smaller + 1) ) - 1) << range[1] ); 
+			return( ( ( (uint64_t)1 << (larger - smaller + 1) ) - 1) << range[1] );
 		}
 
 
