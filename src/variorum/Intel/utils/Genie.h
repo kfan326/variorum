@@ -200,6 +200,19 @@ class GenieDataStore {
 			printMSRandBitfields();
 		}
 
+		//print list of supported df_dms
+		void supported_df_dms(){
+			std::cout << "Supported df_dms for each manufacturer as follows:\n";
+			for(const auto & manufacturer : df_dm_info){
+				std::cout << manufacturer.first << "\n";
+				for(const auto & df_dm : manufacturer.second) {
+					std::cout << "\t" << df_dm.first << "\n";
+				}
+				
+			}
+		}
+
+
 		//print MSRs associated with a df_dm
 		void printMSRs(std::string df_dm, std::string manufacturer) {
 			if(df_dm_info[manufacturer].find(df_dm) == df_dm_info[manufacturer].end()) {
@@ -429,6 +442,10 @@ class GenieDataManager {
 		//return array of strings (MSR hex address, Mask hex value, table name)	
 		std::array<std::string, 3> getMask(std::string df_dm, std::string msr_hex, std::string manufacturer = "INTEL") {
 			return data.getMask(df_dm, msr_hex, manufacturer);
+		}
+
+		void print_supported_df_dms(){
+			data.supported_df_dms();
 		}
 
 
