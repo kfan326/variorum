@@ -46,6 +46,17 @@ void get_bitmask(GenieDataManager &manager) {
 	cout << "MSR address: " << setw(18) << ret[0] << setw(18) << "\tMASK: " << ret[1] << "\t Table: " << ret[2] << "\n";
 }
 
+void help(){
+	cout << "**************************************************************************************************************************************************************************************\n";
+	cout << "Debug options dumps all MSR data currently stored in memory. First block is a list containing table names, number of MSRs associated with the table and the table address in memory\n";
+	cout << "Second block is a mapping of df_dm to memory addresses of associated tables (this is for program debug purposes, not useful to the user)\n";
+	cout << "Third block contains all of the MSRs including the hex address, name, the table it is sourced from and associated df_dms\n\n";
+	cout << "Print MSR option takes in a df_dm and outputs all associated MSRs\n\n";
+	cout << "Print list of df_dm option takes in a MSR hex address and outputs the associated df_dms\n\n";
+	cout << "Get bitmask takes in a df_dm and a MSR hex address and outputs the bitmask (Currently only works on MSRs without variable length bitfields)\n";
+	cout << "**************************************************************************************************************************************************************************************\n";
+}
+
 int main() {
 
 	GenieDataManager manager;
@@ -68,6 +79,9 @@ int main() {
 		}
 		else if(in == "s"){
 			manager.print_supported_df_dms();
+		}
+		else if(in == "h" or in == "help"){
+			help();
 		}
 		else if(in == "c" or in == "clear"){
 			system("clear");
