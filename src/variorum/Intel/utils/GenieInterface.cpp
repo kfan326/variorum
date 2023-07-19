@@ -8,11 +8,12 @@ using namespace std;
 void print_menu(){
 	cout << "please enter one of the following options: \n";
 	cout << "(1) Debug\n";
-	cout << "(2) Print MSR\n";
-	cout << "(3) get vector of df_dm\n";
+	cout << "(2) Print MSR associated with df_dm (displayfamily_displaymodel)\n";
+	cout << "(3) Print list of df_dm associated with MSR\n";
 	cout << "(4) get BitMask\n";
 	cout << "(s) print list of supported df_dms\n";
 	cout << "(c) clear screen\n";
+	cout << "(h) help\n";
 	cout << "(q) quit\n";
 }
 
