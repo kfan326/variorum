@@ -46,6 +46,7 @@ void print_help() {
 	cout << "Print MSR list for df_dm: ./GenieCLI msr df_dm\n";
 	cout << "Print df_dm list for MSR: ./GenieCLI df_dm MSR\n";
 	cout << "Print bit-mask: ./GenieCLI bitmask df_dm MSR\n";
+	cout << "Dump all DataStore values: ./debug\n";
 
 }
 
@@ -117,7 +118,11 @@ int main(int argc, char *argv[])
 		for (auto & df_dm : df_dm_list){
 			cout << df_dm << "\n";
 		}
-		return 0;
+
+	} else if (strcmp(argv[1], "debug") == 0) {
+	
+		manager.debug();
+
 	} else {
 		
 		print_help();
