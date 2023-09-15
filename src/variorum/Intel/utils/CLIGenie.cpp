@@ -40,14 +40,26 @@ unordered_set<string> df_dm_list{
 };
 
 void print_help() {
+	
+	cout << "********************************************Notice**********************************************\n";
+	cout << "LLNL collated this information from The Intel64 and IA-32 Architecture Software Developer's\n"
+		 << "Manual Volume 4:  Model-Specific Registers from [March 2023] document number [335592-079US].\n"
+		 << "While we took due care in its transcription, we might have made mistake or several.\n"
+		 << "For the most recent an authoritative documentation, please consult the most recent version of\n"
+		 << "Volume 4 at https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html\n"
+		 << "Corrections and amplifications are most welcome.\n\n"
+		 << "Also note that processor firmware may choose to disallow access to particular MSRs. The fact\n"
+		 << "that an MSR is listed here for a particular processor model does not guarantee that it will be\n"
+		 << "accessible on your processor.\n";
 
+	cout << "************************************************************************************************\n";
 	cout << "Incorrect usage! use one of the following options\n";
 	cout << "Print list of supported df_dms: ./GenieCLI supported\n";
 	cout << "Print MSR list for df_dm: ./GenieCLI msr df_dm\n";
 	cout << "Print df_dm list for MSR: ./GenieCLI df_dm MSR\n";
 	cout << "Print bit-mask: ./GenieCLI bitmask df_dm MSR\n";
 	cout << "Dump all DataStore values: ./debug\n";
-
+	cout << "************************************************************************************************\n";
 }
 
 void print_msr(vector<array<string, 5> > &df_dm_ret, string df_dm){
