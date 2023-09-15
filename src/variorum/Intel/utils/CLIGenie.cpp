@@ -58,7 +58,7 @@ void print_help() {
 	cout << "Print MSR list for df_dm: ./GenieCLI msr df_dm\n";
 	cout << "Print df_dm list for MSR: ./GenieCLI df_dm MSR\n";
 	cout << "Print bit-mask: ./GenieCLI bitmask df_dm MSR\n";
-	cout << "Dump all DataStore values: ./debug\n";
+	cout << "Dump all DataStore values: ./GenieCLI debug\n";
 	cout << "************************************************************************************************\n";
 }
 
