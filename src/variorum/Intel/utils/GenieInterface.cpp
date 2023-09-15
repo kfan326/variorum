@@ -48,14 +48,30 @@ void get_bitmask(GenieDataManager &manager) {
 }
 
 void help(){
-	cout << "**************************************************************************************************************************************************************************************\n";
-	cout << "Debug options dumps all MSR data currently stored in memory. First block is a list containing table names, number of MSRs associated with the table and the table address in memory\n";
-	cout << "Second block is a mapping of df_dm to memory addresses of associated tables (this is for program debug purposes, not useful to the user)\n";
-	cout << "Third block contains all of the MSRs including the hex address, name, the table it is sourced from and associated df_dms\n\n";
-	cout << "Print MSR option takes in a df_dm and outputs all associated MSRs\n\n";
-	cout << "Print list of df_dm option takes in a MSR hex address and outputs the associated df_dms\n\n";
-	cout << "Get bitmask takes in a df_dm and a MSR hex address and outputs the bitmask (Currently only works on MSRs without variable length bitfields)\n";
-	cout << "**************************************************************************************************************************************************************************************\n";
+	cout << "********************************************Notice**********************************************\n";
+	cout << "LLNL collated this information from The Intel64 and IA-32 Architecture Software Developer's\n"
+		 << "Manual Volume 4:  Model-Specific Registers from [March 2023] document number [335592-079US].\n"
+		 << "While we took due care in its transcription, we might have made mistake or several.\n"
+		 << "For the most recent an authoritative documentation, please consult the most recent version of\n"
+		 << "Volume 4 at https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html\n"
+		 << "Corrections and amplifications are most welcome.\n\n"
+		 << "Also note that processor firmware may choose to disallow access to particular MSRs. The fact\n"
+		 << "that an MSR is listed here for a particular processor model does not guarantee that it will be\n"
+		 << "accessible on your processor.\n"
+		 << "************************************************************************************************\n";
+
+	cout << "Debug options dumps all MSR data currently stored in memory. First block is a list containing \n"
+		 << "table names, number of MSRs associated with the table and the table address in memory\n"
+		 << "Second block is a mapping of df_dm to memory addresses of associated tables (this is for program\n" 
+		 << "debug purposes, not useful to the user) Third block contains all of the MSRs including the hex\n"
+		 << "-address, name, the table it is sourced from and associated df_dms\n\n"
+		 << "Print MSR option takes in a df_dm and outputs all associated MSRs\n\n"
+		 << "Print list of df_dm option takes in a MSR hex address and outputs the associated df_dms\n\n"
+		 << "Get bitmask takes in a df_dm and a MSR hex address and outputs the bitmask (Currently only works\n"
+		 << "on MSRs without variable length bitfields)\n\n"
+		 << "To check your machine's df_dm (Intel), run \"lscpu\" in ther terminal and convert the values\n" 
+		 << "under family and model to hex then append an H to the end\n(e.g. family: 6, model: 79 --> 06_4FH)\n"    
+		 << "*************************************************************************************************\n";
 }
 
 int main() {
